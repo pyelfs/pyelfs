@@ -9,7 +9,7 @@ from random import random
 from time import sleep
 
 from . import CustomTransferAgent
-from .util import ERROR_CODE, handle_error
+from .util import ERROR_CODE, handle_error, stage_logger
 
 logger = getLogger(__name__)
 
@@ -23,13 +23,12 @@ class FileAgent(CustomTransferAgent):
         sleep(random())
         logger.info("FileAgent is initialized")
 
+    @stage_logger("Init Stage")
     def init(self, event, operation, remote, concurrent, concurrenttransfers):
-        logger.info("Enter Start stage")
         yield "{}"
-        logger.info("Exit Start stage")
 
+    @stage_logger("Upload Stage")
     def upload(self, event, oid, size, path, action):
-        logger.info("Enter Upload stage")
         yield json.dumps({
             "event": "progress",
             "oid": oid,
@@ -52,11 +51,9 @@ class FileAgent(CustomTransferAgent):
             "event": "complete",
             "oid": oid,
         })
-        logger.info("Exit Upload stage")
 
+    @stage_logger("Download Stage")
     def download(self, event, oid, size, action):
-        logger.info("Enter Download stage")
-
         temp_path = os.path.join(self.temp_dir, oid)
         logger.info(f"temp path is {temp_path}")
         yield json.dumps({
@@ -76,38 +73,6 @@ class FileAgent(CustomTransferAgent):
             self.terminate()
         except Exception as e:
             handle_error(e, ERROR_CODE.DOWNLOAD)
-        logger.info("Exit Download stage")
-
-    def terminate(self):
-        logger.info("Enter Terminate stage")
-        logger.info("Exit Terminate stage")
-        yield '{"event": "terminate"}'
-
-
-def main_proc(lfs_dir, temp_dir):
-    logger.info("Enter main process")
-    logger.info("Wait for std input")
-    for line in sys.stdin:
-        file_agent = FileAgent(lfs_dir, temp_dir)
-        generator_dispatcher = {
-            "init": lambda k: file_agent.init(**k),
-            "upload": lambda k: file_agent.upload(**k),
-            "download": lambda k: file_agent.download(**k),
-            "terminate": lambda _: file_agent.terminate(),
-        }
-        logger.debug(line)
-        try:
-            data = json.loads(line)
-        except Exception as e:
-            logger.debug(e)
-            continue
-        for res in generator_dispatcher[data["event"]](data):
-            logger.debug(res)
-            print(res, flush=True)
-    logger.info("EOF")
-    res = next(generator_dispatcher["terminate"](None))
-    logger.debug(res)
-    print(res, flush=True)
 
 
 def parse_args():
@@ -139,6 +104,7 @@ def main():
     except Exception as e:
         logger.info(e)
         raise
-    logger.info(f"Modifid arguments. : {str(a)}")
-    main_proc(a.lfs_dir, a.tempdir)
+    logger.info(f"Modified arguments. : {str(a)}")
+    agent = FileAgent(a.lfs_dir, a.tempdir)
+    agent.main_proc(sys.stdin)
 

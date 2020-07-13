@@ -8,7 +8,7 @@ from pyelfs import sftp_agent
 
 
 class TestSftpAgent(TestCase):
-    agent = sftp_agent.SftpAgent("elf", "localhost", 22, "~/.ssh/id_rsa", "/home/elf/.lfs-objects")
+    agent = sftp_agent.SftpAgent("elf", "localhost", 22, "~/.ssh/id_rsa", "/home/elf/.lfs-objects", "temp")
 
     def test_init(self):
         stdin_init = '{ ' \
