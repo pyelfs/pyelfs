@@ -52,3 +52,21 @@ def stage_logger(phase):
             logger.info(f"Exit {phase}.")
         return wrapper
     return decorator
+
+
+def include(k):
+    def option(v):
+        return [k, str(v)] if v else []
+    return option
+
+
+def include_pyelfs_wrapped(k):
+    def option(v):
+        return [k, f"pyelfs://{str(v)}"] if v else []
+    return option
+
+
+def exclude():
+    def option(v):
+        return []
+    return option

@@ -1,8 +1,9 @@
-__version__ = '0.0.1'
+__version__ = '0.1.1'
 
 import json
 from abc import ABC, abstractmethod
 from logging import getLogger
+
 from .util import stage_logger
 
 logger = getLogger(__name__)

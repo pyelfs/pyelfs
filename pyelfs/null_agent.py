@@ -1,18 +1,17 @@
 import json
 import os
-import sys
-from argparse import ArgumentParser
 from logging import getLogger
 
 from . import CustomTransferAgent
 from .util import stage_logger
-
+from git.repo import Repo
+from git.repo.base import InvalidGitRepositoryError
 logger = getLogger(__name__)
 
 
 class NullAgent(CustomTransferAgent):
 
-    def __init__(self, lfs_storage):
+    def __init__(self, lfs_storage, **kwargs):
         self.lfs_storage = lfs_storage
         logger.info("NullAgent is initialized")
 
@@ -48,19 +47,21 @@ class NullAgent(CustomTransferAgent):
             "path": os.path.sep.join(self.lfs_storage.split("/"))
         })
 
+    @classmethod
+    def add_argument(cls, parser):
+        default_lfs = "~/.lfs-miscellaneous"
+        try:
+            repo = Repo()
+            default_lfs = os.path.join(repo.working_dir, ".git/lfs")
+        except InvalidGitRepositoryError:
+            pass
+        parser.add_argument(
+            "--lfs-storage",
+            default= default_lfs,
+            help="lfs storage"
+        )
+        parser.add_argument("--verbose", help="verbose log")
 
-def parse_args():
-    p = ArgumentParser()
-    p.add_argument("--lfs-storage", help="lfs storage")
-    p.add_argument("--debug-log", help="debug log file.")
-    return p.parse_args()
-
-
-def main():
-    import logging
-    a = parse_args()
-    if a.debug_log:
-        logging.basicConfig(level=logging.DEBUG, filename=a.debug_log)
-    logger.info(f"Arguments were parsed. : {str(a)}")
-    agent = NullAgent(a.lfs_storage)
-    agent.main_proc(sys.stdin)
+    @classmethod
+    def rep(cls):
+        return "null agent"
