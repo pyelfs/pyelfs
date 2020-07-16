@@ -86,8 +86,10 @@ def main():
     if not a.subcommand:
         p.print_help()
         return
-    if a.verbose:
+    try:
         logging.basicConfig(level=logging.DEBUG, filename=a.verbose)
+    except AttributeError:
+        pass
     logger.info(f"Arguments: {a}")
     k = dict((k, a.__dict__[k]) for k in a.__dict__)
     logger.info(f"Modified arguments: {k}")
