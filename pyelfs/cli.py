@@ -87,7 +87,8 @@ def main():
         p.print_help()
         return
     try:
-        logging.basicConfig(level=logging.DEBUG, filename=a.verbose)
+        if a.verbose:
+            logging.basicConfig(level=logging.DEBUG, filename=a.verbose)
     except AttributeError:
         pass
     logger.info(f"Arguments: {a}")
