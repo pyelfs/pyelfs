@@ -47,7 +47,8 @@ class Cli:
                   f"\n" \
                   f"git config --add lfs.standalonetransferagent pyelfs\n" \
                   f"git config --add lfs.customtransfer.pyelfs.path {pyelfs_path}\n" \
-                  f"git config --add lfs.customtransfer.pyelfs.args '{self.kwargs['agent']} {pyelfs_args}'\n"
+                  f"git config --add lfs.customtransfer.pyelfs.args " \
+                  f"'{self.kwargs['agent']} {pyelfs_args}'\n"
             print(res)
         else:
             self.kwargs["help"]()

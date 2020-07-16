@@ -32,7 +32,8 @@ class SftpAgent(CustomTransferAgent):
 
     @stage_logger("Upload Stage")
     def upload(self, event, oid, size, path, action):
-        with SftpAuth(self.user, self.hostname, self.port, self.rsa_key, self.lfs_storage_remote) as sftp:
+        with SftpAuth(self.user, self.hostname, self.port,
+                      self.rsa_key, self.lfs_storage_remote) as sftp:
             progress = Progress(oid)
             try:
                 sftp.chdir(oid[0:2])
@@ -80,7 +81,8 @@ class SftpAgent(CustomTransferAgent):
 
     @stage_logger("Download Stage")
     def download(self, event, oid, size, action):
-        with SftpAuth(self.user, self.hostname, self.port, self.rsa_key, self.lfs_storage_remote) as sftp:
+        with SftpAuth(self.user, self.hostname, self.port,
+                      self.rsa_key, self.lfs_storage_remote) as sftp:
             progress = Progress(oid)
             temp_path = os.path.join(self.temp, oid)
             logger.info(f"temp path is {temp_path}")

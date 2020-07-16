@@ -57,7 +57,7 @@ class NullAgent(CustomTransferAgent):
             pass
         parser.add_argument(
             "--lfs-storage",
-            default= default_lfs,
+            default=default_lfs,
             help="lfs storage"
         )
         parser.add_argument("--verbose", help="verbose log")

@@ -8,7 +8,8 @@ from pyelfs import sftp_agent
 
 
 class TestSftpAgent(TestCase):
-    agent = sftp_agent.SftpAgent("elf", "localhost", 22, "~/.ssh/id_rsa", "/home/elf/.lfs-objects", "temp")
+    agent = sftp_agent.SftpAgent(
+        "elf", "localhost", 22, "~/.ssh/id_rsa", "/home/elf/.lfs-objects", "temp")
 
     def test_init(self):
         stdin_init = '{ ' \
@@ -26,7 +27,8 @@ class TestSftpAgent(TestCase):
     def test_upload(self, auth):
         stdin_upload = '{ ' \
                        '"event": "upload", ' \
-                       '"oid": "bf3e3e2af9366a3b704ae0c31de5afa64193ebabffde2091936ad2e7510bc03a", ' \
+                       '"oid": ' \
+                       '"bf3e3e2af9366a3b704ae0c31de5afa64193ebabffde2091936ad2e7510bc03a", ' \
                        '"size": 346232, ' \
                        '"path": "/path/to/file.png", ' \
                        '"action": { ' \
@@ -38,14 +40,20 @@ class TestSftpAgent(TestCase):
         generator = self.agent.upload(**stdin_upload)
         res = next(generator)
         self.assertEqual(res,
-                         '{"event": "complete", "oid": "bf3e3e2af9366a3b704ae0c31de5afa64193ebabffde2091936ad2e7510bc03a"}')
-        auth.assert_called_once_with("elf", "localhost", 22, "~/.ssh/id_rsa", "/home/elf/.lfs-objects")
+                         '{'
+                         '"event": "complete", '
+                         '"oid": '
+                         '"bf3e3e2af9366a3b704ae0c31de5afa64193ebabffde2091936ad2e7510bc03a"'
+                         '}')
+        auth.assert_called_once_with(
+            "elf", "localhost", 22, "~/.ssh/id_rsa", "/home/elf/.lfs-objects")
 
     @patch.object(sftp_agent, "SftpAuth")
     def test_download(self, auth):
         stdin_download = '{ ' \
                          '"event": "download", ' \
-                         '"oid": "22ab5f63670800cc7be06dbed816012b0dc411e774754c7579467d2536a9cf3e", ' \
+                         '"oid": ' \
+                         '"22ab5f63670800cc7be06dbed816012b0dc411e774754c7579467d2536a9cf3e", ' \
                          '"size": 21245, ' \
                          '"action": { ' \
                          '"href": "nfs://server/path", ' \
@@ -58,13 +66,16 @@ class TestSftpAgent(TestCase):
         self.assertEqual(res,
                          '{'
                          '"event": "complete", '
-                         '"oid": "22ab5f63670800cc7be06dbed816012b0dc411e774754c7579467d2536a9cf3e", '
-                         '"path": "/var/folders/nw/2kgc3k852755dtjv0mfm05z00000gn/T'
+                         '"oid": '
+                         '"22ab5f63670800cc7be06dbed816012b0dc411e774754c7579467d2536a9cf3e", '
+                         '"path": '
+                         '"/var/folders/nw/2kgc3k852755dtjv0mfm05z00000gn/T'
                          '/22ab5f63670800cc7be06dbed816012b0dc411e774754c7579467d2536a9cf3e"'
                          '}')
         res = next(generator)
         self.assertEqual(res, '{"event": "terminate"}')
-        auth.assert_called_once_with("elf", "localhost", 22, "~/.ssh/id_rsa", "/home/elf/.lfs-objects")
+        auth.assert_called_once_with(
+            "elf", "localhost", 22, "~/.ssh/id_rsa", "/home/elf/.lfs-objects")
 
     def test_terminate(self):
         for res in self.agent.terminate():
