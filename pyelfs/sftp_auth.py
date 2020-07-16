@@ -1,7 +1,6 @@
 from logging import getLogger
-import json
-import os
 from paramiko import SFTPClient, Transport, RSAKey
+from .util import handle_error, ERROR_CODE
 
 logger = getLogger(__name__)
 
@@ -30,13 +29,7 @@ class SftpAuth:
             rsa_key = RSAKey.from_private_key_file(self.rsa_key)
             self.transport.auth_publickey(self.user, rsa_key)
         except Exception as e:
-            logger.debug(e)
-            print(json.dumps({
-                "error": {
-                    "code": 00,
-                    "message": e
-                },
-            }), flush=True)
+            handle_error(e, ERROR_CODE.SFTP_AUTH)
             raise
 
         logger.info("Transport was initialized.")
