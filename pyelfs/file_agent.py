@@ -13,7 +13,7 @@ logger = getLogger(__name__)
 
 class FileAgent(CustomTransferAgent):
 
-    def __init__(self, lfs_storage_remote, temp):
+    def __init__(self, lfs_storage_remote, temp, **kwargs):
         self.lfs_storage_remote = lfs_storage_remote
         self.temp_dir = temp
         logger.info("Wait a little to avoid pipe broken")
