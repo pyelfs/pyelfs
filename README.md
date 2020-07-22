@@ -36,7 +36,7 @@ pyelfs init file
 ### pyelfs init file -h shows more info.
 
 git config --add lfs.standalonetransferagent pyelfs
-git config --add lfs.customtransfer.pyelfs.path pyelfs.py
+git config --add lfs.customtransfer.pyelfs.path pyelfs
 git config --add lfs.customtransfer.pyelfs.args 'file --lfs-storage-local pyelfs://~/.lfs-miscellaneous'
 
 ```

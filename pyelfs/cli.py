@@ -37,7 +37,7 @@ class Cli:
         if self.kwargs["agent"]:
             pyelfs_args = [self.options[k](self.kwargs[k]) for k in self.kwargs]
             pyelfs_args = " ".join(sum(pyelfs_args, []))
-            pyelfs_path = "pyelfs.py"
+            pyelfs_path = "pyelfs"
             if sys.platform.startswith('win'):
                 pyelfs_path = "pyelfs.exe"
 
