@@ -3,6 +3,7 @@ from getpass import getuser
 from os.path import expanduser
 from unittest import TestCase
 from unittest.mock import patch
+from argparse import ArgumentParser
 
 from pyelfs import sftp_agent
 
@@ -63,17 +64,20 @@ class TestSftpAgent(TestCase):
         stdin_download = json.loads(stdin_download)
         generator = self.agent.download(**stdin_download)
         res = next(generator)
-        self.assertEqual(res,
-                         '{'
-                         '"event": "complete", '
-                         '"oid": '
-                         '"22ab5f63670800cc7be06dbed816012b0dc411e774754c7579467d2536a9cf3e", '
-                         '"path": '
-                         '"/var/folders/nw/2kgc3k852755dtjv0mfm05z00000gn/T'
-                         '/22ab5f63670800cc7be06dbed816012b0dc411e774754c7579467d2536a9cf3e"'
-                         '}')
-        res = next(generator)
-        self.assertEqual(res, '{"event": "terminate"}')
+        res = json.loads(res)
+        res["path"] = None
+        exp = '{' \
+              '"event": "complete", ' \
+              '"oid": ' \
+              '"22ab5f63670800cc7be06dbed816012b0dc411e774754c7579467d2536a9cf3e", ' \
+              '"path": ' \
+              '"/var/folders/nw/2kgc3k852755dtjv0mfm05z00000gn/T' \
+              '/22ab5f63670800cc7be06dbed816012b0dc411e774754c7579467d2536a9cf3e"' \
+              '}'
+        exp = json.loads(exp)
+        exp["path"] = None
+        for k, v in res.items():
+            self.assertEqual(v, exp[k])
         auth.assert_called_once_with(
             "elf", "localhost", 22, "~/.ssh/id_rsa", "/home/elf/.lfs-objects")
 
@@ -81,13 +85,15 @@ class TestSftpAgent(TestCase):
         for res in self.agent.terminate():
             self.assertEqual(res, '{"event": "terminate"}')
 
+    def test_add_argument(self):
+        p = ArgumentParser()
+        sftp_agent.SftpAgent.add_argument(p)
+        a = p.parse_args()
+        self.assertEqual(a.user, getuser())
+        self.assertEqual(a.hostname, "localhost")
+        self.assertEqual(a.port, 22)
+        self.assertEqual(a.rsa_key, expanduser("~") + "/.ssh/id_rsa")
+        self.assertEqual(a.lfs_storage_remote, f"/home/{getuser()}/lfs-objects")
+        self.assertEqual(a.temp, None)
+        self.assertEqual(a.verbose, None)
 
-def test_parse_args(self):
-    a = sftp_agent.parse_args()
-    self.assertEqual(a.user, getuser())
-    self.assertEqual(a.hostname, "localhost")
-    self.assertEqual(a.port, 22)
-    self.assertEqual(a.rsa_key, expanduser("~") + "/.ssh/rsa_id")
-    self.assertEqual(a.remote_dir, "~/.lfs-miscellaneous")
-    self.assertEqual(a.temp_dir, None)
-    self.assertEqual(a.debug_log, None)
