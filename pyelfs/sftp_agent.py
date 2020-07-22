@@ -89,7 +89,8 @@ class SftpAgent(CustomTransferAgent):
             try:
                 sftp.chdir(oid[0:2])
                 sftp.chdir(oid[2:4])
-                sftp.get(oid, temp_path, callback=progress.progress_callback)
+                with open(temp_path, "w") as f:
+                    sftp.getfo(oid, f, callback=progress.progress_callback)
                 yield json.dumps({
                     "event": "complete",
                     "oid": oid,
