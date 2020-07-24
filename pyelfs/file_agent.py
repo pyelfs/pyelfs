@@ -4,6 +4,7 @@ import shutil
 from logging import getLogger
 from random import random
 from time import sleep
+from tempfile import gettempdir
 
 from . import CustomTransferAgent
 from .util import ERROR_CODE, handle_error, stage_logger
@@ -77,7 +78,9 @@ class FileAgent(CustomTransferAgent):
                             default="~/.lfs-miscellaneous",
                             help="path of lfs objects directory.")
         parser.add_argument("--verbose", help="verbose log")
-        parser.add_argument("--temp", help="temporary directory to download lfs objects.")
+        parser.add_argument("--temp",
+                            default=f"{gettempdir()}",
+                            help="temporary directory to download lfs objects.")
 
     @classmethod
     def rep(cls):

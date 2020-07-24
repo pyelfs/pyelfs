@@ -13,6 +13,7 @@ class SftpAuth:
         self.port = port
         self.rsa_key = rsa_key
         self.remote_dir = remote_dir
+        self.transport = Transport(f"{self.hostname}:{self.port}")
         logger.info(self.__repr__())
 
     def __repr__(self):
@@ -23,8 +24,7 @@ class SftpAuth:
     def set_transport(self):
         logger.debug("Try to initialize transport.")
         try:
-            self.transport = Transport(f"{self.hostname}:{self.port}")
-            self.transport.start_client(event=None, timeout=15)
+            self.transport.start_client()
             self.transport.get_remote_server_key()
             rsa_key = RSAKey.from_private_key_file(self.rsa_key)
             self.transport.auth_publickey(self.user, rsa_key)

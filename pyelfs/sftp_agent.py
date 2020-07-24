@@ -5,6 +5,7 @@ from logging import getLogger
 from os.path import expanduser
 from random import random
 from time import sleep
+from tempfile import gettempdir
 
 from . import CustomTransferAgent
 from .sftp_auth import SftpAuth
@@ -89,7 +90,8 @@ class SftpAgent(CustomTransferAgent):
             try:
                 sftp.chdir(oid[0:2])
                 sftp.chdir(oid[2:4])
-                sftp.get(oid, temp_path, callback=progress.progress_callback)
+                with open(temp_path, "bw") as f:
+                    sftp.getfo(oid, f, callback=progress.progress_callback)
                 yield json.dumps({
                     "event": "complete",
                     "oid": oid,
@@ -118,7 +120,9 @@ class SftpAgent(CustomTransferAgent):
                                  "please add 'pyelfs://' in .git/config, "
                                  "in order to avoid unintentional path expansion by git-lfs. ")
         parser.add_argument("--verbose", help="verbose log")
-        parser.add_argument("--temp", help="temporary directory to download lfs objects.")
+        parser.add_argument("--temp",
+                            default=f"{gettempdir()}",
+                            help="temporary directory to download lfs objects.")
 
     @classmethod
     def rep(cls):

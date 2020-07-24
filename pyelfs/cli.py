@@ -37,7 +37,7 @@ class Cli:
         if self.kwargs["agent"]:
             pyelfs_args = [self.options[k](self.kwargs[k]) for k in self.kwargs]
             pyelfs_args = " ".join(sum(pyelfs_args, []))
-            pyelfs_path = "pyelfs.py"
+            pyelfs_path = "pyelfs"
             if sys.platform.startswith('win'):
                 pyelfs_path = "pyelfs.exe"
 
@@ -92,11 +92,7 @@ def main():
     except AttributeError:
         pass
     logger.info(f"Arguments: {a}")
-    kwarg = dict((k, a.__dict__[k]) for k in a.__dict__)
-    for k in kwarg:
-        if kwarg[k] is not str:
-            continue
-        kwarg[k] = kwarg[k].replace("pyelfs://", "")
+    kwarg = dict((k, v.replace("pyelfs://", "") if type(v) is str else v) for k, v in a.__dict__.items())
     logger.info(f"Modified arguments: {kwarg}")
     agent = a.func(**kwarg)
     agent.main_proc(sys.stdin)
