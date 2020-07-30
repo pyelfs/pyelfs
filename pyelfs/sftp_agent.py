@@ -85,7 +85,9 @@ class SftpAgent(CustomTransferAgent):
         with SftpAuth(self.user, self.hostname, self.port,
                       self.rsa_key, self.lfs_storage_remote) as sftp:
             progress = Progress(oid)
-            temp_path = os.path.join(self.temp, oid)
+            temp_path = self.temp.split("/")
+            temp_path.append(oid)
+            temp_path = "/".join(temp_path)
             logger.info(f"temp path is {temp_path}")
             try:
                 sftp.chdir(oid[0:2])
